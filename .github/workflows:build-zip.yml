@@ -1,0 +1,27 @@
+name: Build plugin zip
+
+on:
+	push:
+		branches:
+			- main   # main に push されたら実行
+
+jobs:
+	build:
+		runs-on: ubuntu-latest
+
+		steps:
+			- name: Checkout
+				uses: actions/checkout@v3
+
+			- name: Build plugin zip
+				run: |
+					mkdir dist
+					cd wp-vite-hmr   # ←プラグインのフォルダ名に変更
+					zip -r ../dist/wp-vite-hmr.zip .
+
+			- name: Deploy to GitHub Pages
+				uses: peaceiris/actions-gh-pages@v3
+				with:
+					github_token: ${{ secrets.GITHUB_TOKEN }}
+					publish_dir: ./dist
+					publish_branch: gh-pages
