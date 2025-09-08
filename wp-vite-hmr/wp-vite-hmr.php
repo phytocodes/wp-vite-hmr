@@ -62,7 +62,7 @@ if ( !is_admin() && is_vite_dev_server() ) {
 				return get_vite_base_url();
 			} else {
 				// site_url / home_url は WP のベースURLを Vite のURLに置換
-				return str_replace(trailingslashit(get_wp_base_url()), get_vite_base_url(), $url);
+				return str_replace(get_wp_base_url(), get_vite_base_url(), $url);
 			}
 		});
 	}
