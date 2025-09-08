@@ -25,7 +25,7 @@ if ( !is_admin() && is_vite_dev_server() ) {
 
 		// Vite用スクリプトを読み込み
 		echo '<script type="module" crossorigin src="' . esc_url( home_url('/') . '@vite/client' ) . '"></script>' . "\n";
-		echo '<script type="module" crossorigin src="' . esc_url( home_url('/') . 'src/main.js' ) . '"></script>' . "\n";
+		echo '<script type="module" crossorigin src="' . esc_url( home_url('/') . 'src/scripts/main.js' ) . '"></script>' . "\n";
 	}
 	add_action( 'wp_enqueue_scripts', 'my_vite_dev_assets', 20 );
 
