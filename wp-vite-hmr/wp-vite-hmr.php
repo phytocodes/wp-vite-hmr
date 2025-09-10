@@ -24,8 +24,8 @@ if ( !is_admin() && is_vite_dev_server() ) {
 		wp_dequeue_script( 'main' );
 
 		// Vite用スクリプトを読み込み
-		echo '<script type="module" crossorigin src="' . esc_url( home_url('/') . '@vite/client' ) . '"></script>' . "\n";
-		echo '<script type="module" crossorigin src="' . esc_url( home_url('/') . 'src/scripts/main.js' ) . '"></script>' . "\n";
+		echo '<script type="module" crossorigin src="' . esc_url( home_url('/@vite/client') ) . '"></script>' . "\n";
+		echo '<script type="module" crossorigin src="' . esc_url( home_url('/src/scripts/main.js') ) . '"></script>' . "\n";
 	}
 	add_action( 'wp_enqueue_scripts', 'my_vite_dev_assets', 20 );
 
@@ -59,10 +59,10 @@ if ( !is_admin() && is_vite_dev_server() ) {
 		add_filter($filter, function ($url) use ($filter) {
 			if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'get_asset_directory_uri_filter'])) {
 				// テーマディレクトリ系は Vite のルートに置換
-				return get_vite_base_url();
+				return untrailingslashit(get_vite_base_url());
 			} else {
 				// site_url / home_url は WP のベースURLを Vite のURLに置換
-				return str_replace(get_wp_base_url(), get_vite_base_url(), $url);
+				return str_replace(trailingslashit(get_wp_base_url()), get_vite_base_url(), $url);
 			}
 		});
 	}
