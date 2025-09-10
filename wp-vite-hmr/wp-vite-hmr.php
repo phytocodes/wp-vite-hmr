@@ -35,36 +35,40 @@ if ( !is_admin() && is_vite_dev_server() ) {
 		// 環境変数または定数からホストとポートを取得
 		$forwarded_host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? "localhost:5173";
 		$scheme = is_ssl() ? 'https' : 'http';
-		return "{$scheme}://{$forwarded_host}/{$path}";
+		return trailingslashit("{$scheme}://{$forwarded_host}/{$path}");
 	}
 
 	// WordPress のベース URL（置換元）
 	function get_wp_base_url() {
 		if (defined('WP_HOME') && WP_HOME) {
-			return WP_HOME;
+			return trailingslashit(WP_HOME);
 		}
-		return 'http://localhost:8888';
+		return trailingslashit('http://localhost:8888');
 	}
 
-	// フィルターを一括登録
-	$filters = [
-		'site_url'                 => '',
-		'home_url'                 => '',
-		'stylesheet_directory_uri' => '',
-		'template_directory_uri'   => '',
-		'get_asset_directory_uri_filter' => '',
-	];
+  function setup_vite_filters() {
+    $filters = [
+      'site_url',
+      'home_url',
+      'stylesheet_directory_uri',
+      'template_directory_uri',
+    ];
 
-	foreach ($filters as $filter => $path) {
-		add_filter($filter, function ($url) use ($filter) {
-			if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'get_asset_directory_uri_filter'])) {
-				// テーマディレクトリ系は Vite のルートに置換
-				return untrailingslashit(get_vite_base_url());
-			} else {
-				// site_url / home_url は WP のベースURLを Vite のURLに置換
-				return str_replace(trailingslashit(get_wp_base_url()), get_vite_base_url(), $url);
-			}
-		});
-	}
+    if ( has_filter('get_asset_directory_uri_filter') ) {
+      $filters[] = 'get_asset_directory_uri_filter';
+    }
+
+    foreach ($filters as $filter) {
+      add_filter($filter, function ($url) use ($filter) {
+        if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'get_asset_directory_uri_filter'])) {
+          return get_vite_base_url();
+        } else {
+          return str_replace(get_wp_base_url(), get_vite_base_url(), $url);
+        }
+      });
+    }
+  }
+
+  add_action('init', 'setup_vite_filters', 10);
 
 }
