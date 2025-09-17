@@ -46,29 +46,26 @@ if ( !is_admin() && is_vite_dev_server() ) {
 		return trailingslashit('http://localhost:8888');
 	}
 
-  function setup_vite_filters() {
-    $filters = [
-      'site_url',
-      'home_url',
-      'stylesheet_directory_uri',
-      'template_directory_uri',
-    ];
+	function setup_vite_filters() {
+		$filters = [
+			'site_url',
+			'home_url',
+			'stylesheet_directory_uri',
+			'template_directory_uri',
+			'get_asset_directory_uri_filter',
+		];
 
-    if ( has_filter('get_asset_directory_uri_filter') ) {
-      $filters[] = 'get_asset_directory_uri_filter';
-    }
+		foreach ($filters as $filter) {
+			add_filter($filter, function ($url) use ($filter) {
+				if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'get_asset_directory_uri_filter'])) {
+					return untrailingslashit(get_vite_base_url());
+				} else {
+					return str_replace(get_wp_base_url(), get_vite_base_url(), $url);
+				}
+			});
+		}
+	}
 
-    foreach ($filters as $filter) {
-      add_filter($filter, function ($url) use ($filter) {
-        if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'get_asset_directory_uri_filter'])) {
-          return get_vite_base_url();
-        } else {
-          return str_replace(get_wp_base_url(), get_vite_base_url(), $url);
-        }
-      });
-    }
-  }
-
-  add_action('init', 'setup_vite_filters', 10);
+	add_action('plugins_loaded', 'setup_vite_filters', 0);
 
 }
