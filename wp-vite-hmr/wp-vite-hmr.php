@@ -70,25 +70,26 @@ if ( !is_admin() && is_vite_dev_server() ) {
 
 	/* picture 用フィルタ
 	---------------------------------------------------------- */
-	function my_filter_part_picture_args($args) {
+	function vite_filter_part_picture_args($args) {
 		$img_base_uri = IMG_URI;
-		$args['artDirectives'] = $args['artDirectives'] ?? [];
-		$src = $args['src'] ?? null;
-		if (!$src || empty($src['file'])) return $args;
-
-		$is_vite = function_exists('is_vite_dev_server') && is_vite_dev_server();
 
 		// PC
-		$args['src'] = generate_srcset_webp($src['file'], $img_base_uri, $is_vite);
+		if (!empty($args['src']['file'])) {
+			$args['src']['srcset'] = $img_base_uri . '/' . $args['src']['file'];
+			$args['src']['webp_file'] = null;
+		}
 
-		// SP
+		// SP / artDirectives
 		foreach ($args['artDirectives'] as &$d) {
-			if (empty($d['file'])) continue;
-			$d = array_merge($d, generate_srcset_webp($d['file'], $img_base_uri, $is_vite));
+			if (!empty($d['file'])) {
+				$d['srcset'] = $img_base_uri . '/' . $d['file'];
+				$d['webp_file'] = null;
+			}
 		}
 
 		return $args;
 	}
-	add_filter('part_picture_args', 'my_filter_part_picture_args');
+
+	add_filter('part_picture_args', 'vite_filter_part_picture_args', 20);
 
 }
