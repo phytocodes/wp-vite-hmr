@@ -52,7 +52,7 @@ if ( !is_admin() && is_vite_dev_server() ) {
 			'home_url',
 			'stylesheet_directory_uri',
 			'template_directory_uri',
-			'get_asset_directory_uri_filter',
+			'theme_assets_uri',
 		];
 
 		foreach ($filters as $filter) {
@@ -75,7 +75,8 @@ if ( !is_admin() && is_vite_dev_server() ) {
 
 		// PC
 		if (!empty($args['src']['file'])) {
-			$args['src']['srcset'] = $img_base_uri . '/' . $args['src']['file'];
+			$file = $args['src']['file'];
+			$args['src']['srcset'] = $img_base_uri . '/' . $file;
 			$args['src']['webp_file'] = null;
 		}
 
@@ -85,11 +86,11 @@ if ( !is_admin() && is_vite_dev_server() ) {
 				$d['srcset'] = $img_base_uri . '/' . $d['file'];
 				$d['webp_file'] = null;
 			}
-		}
+	}
 
 		return $args;
 	}
 
-	add_filter('part_picture_args', 'vite_filter_part_picture_args', 20);
+	add_filter('part_picture_args', 'vite_filter_part_picture_args', PHP_INT_MAX);
 
 }
