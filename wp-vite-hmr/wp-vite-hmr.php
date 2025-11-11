@@ -68,34 +68,27 @@ if ( !is_admin() && is_vite_dev_server() ) {
 
 	add_action('plugins_loaded', 'setup_vite_filters', 0);
 
-	/* picture タグ用 srcset/WebP フィルタ
+	/* picture 用フィルタ
 	---------------------------------------------------------- */
-	add_filter('part_picture_args', function($args) {
-		// テーマ側に generate_srcset_webp() が定義されている前提
-		if (!function_exists('generate_srcset_webp')) return $args;
-
-		$img_base_uri = defined('IMG_URI') ? IMG_URI : get_stylesheet_directory_uri() . '/assets/images/';
+	function my_filter_part_picture_args($args) {
+		$img_base_uri = IMG_URI;
 		$args['artDirectives'] = $args['artDirectives'] ?? [];
 		$src = $args['src'] ?? null;
 		if (!$src || empty($src['file'])) return $args;
 
-		// --- PC用 ---
-		$pc = generate_srcset_webp($src['file'], $img_base_uri);
-		// 開発環境では WebP 無効
-		$pc['webp_file'] = null;
-		$args['src']['srcset'] = $pc['srcset'];
-		$args['src']['webp_file'] = $pc['webp_file'];
+		$is_vite = function_exists('is_vite_dev_server') && is_vite_dev_server();
 
-		// --- SP用 ---
+		// PC
+		$args['src'] = generate_srcset_webp($src['file'], $img_base_uri, $is_vite);
+
+		// SP
 		foreach ($args['artDirectives'] as &$d) {
 			if (empty($d['file'])) continue;
-			$sp = generate_srcset_webp($d['file'], $img_base_uri);
-			$sp['webp_file'] = null; // 開発環境では WebP 無効
-			$d['srcset'] = $sp['srcset'];
-			$d['webp_file'] = $sp['webp_file'];
+			$d = array_merge($d, generate_srcset_webp($d['file'], $img_base_uri, $is_vite));
 		}
 
 		return $args;
-	});
+	}
+	add_filter('part_picture_args', 'my_filter_part_picture_args');
 
 }
