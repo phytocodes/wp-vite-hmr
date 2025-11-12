@@ -57,7 +57,7 @@ if ( !is_admin() && is_vite_dev_server() ) {
 
 		foreach ($filters as $filter) {
 			add_filter($filter, function ($url) use ($filter) {
-				if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'get_asset_directory_uri_filter'])) {
+				if (in_array($filter, ['stylesheet_directory_uri', 'template_directory_uri', 'theme_assets_uri'])) {
 					return untrailingslashit(get_vite_base_url());
 				} else {
 					return str_replace(get_wp_base_url(), get_vite_base_url(), $url);
@@ -75,22 +75,30 @@ if ( !is_admin() && is_vite_dev_server() ) {
 
 		// PC
 		if (!empty($args['src']['file'])) {
-			$file = $args['src']['file'];
-			$args['src']['srcset'] = $img_base_uri . '/' . $file;
+			$file = ltrim($args['src']['file'], '/\\');
+			$args['src']['srcset'] = null;
 			$args['src']['webp_file'] = null;
 		}
 
 		// SP / artDirectives
 		foreach ($args['artDirectives'] as &$d) {
 			if (!empty($d['file'])) {
-				$d['srcset'] = $img_base_uri . '/' . $d['file'];
+				$d['srcset'] = $img_base_uri . ltrim($d['file'], '/\\');
 				$d['webp_file'] = null;
 			}
-	}
+		}
 
 		return $args;
 	}
 
 	add_filter('part_picture_args', 'vite_filter_part_picture_args', PHP_INT_MAX);
+
+	/* キャッシュバスター無効化
+	---------------------------------------------------------- */
+	function vite_disable_filemtime_cache($url, $file_path, $base_uri) {
+    $file_path = ltrim($file_path, '/\\');
+    return $base_uri . $file_path;
+	}
+	add_filter('add_filemtime_cache_url', 'vite_disable_filemtime_cache', 10, 3);
 
 }
