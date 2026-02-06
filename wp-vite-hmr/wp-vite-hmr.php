@@ -45,7 +45,13 @@ function get_wp_base_url() {
 	if (defined('WP_HOME') && WP_HOME) {
 		return trailingslashit(WP_HOME);
 	}
-	return trailingslashit('http://localhost:8888');
+
+	if (isset($_SERVER['HTTP_HOST'])) {
+		$scheme = is_ssl() ? 'https' : 'http';
+		return trailingslashit($scheme . '://' . $_SERVER['HTTP_HOST']);
+	}
+
+	return trailingslashit(get_option('home'));
 }
 
 function setup_vite_filters() {
