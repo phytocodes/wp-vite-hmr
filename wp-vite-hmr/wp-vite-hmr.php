@@ -90,7 +90,7 @@ function vite_filter_part_picture_args($args) {
 	// SP / artDirectives
 	foreach ($args['artDirectives'] as &$d) {
 		if (!empty($d['file'])) {
-			$d['srcset'] = $img_base_uri . ltrim($d['file'], '/\\');
+			$d['srcset'] = $img_base_uri . $d['file'];
 			$d['webp_srcset'] = null;
 		}
 	}
