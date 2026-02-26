@@ -83,15 +83,18 @@ function vite_filter_part_picture_args($args) {
 
 	// PC
 	if (!empty($args['src']['file'])) {
+		$args['src']['url'] = $img_base_uri . $args['src']['file'];
 		$args['src']['srcset'] = null;
 		$args['src']['webp_srcset'] = null;
 	}
 
-	// SP / artDirectives
-	foreach ($args['artDirectives'] as &$d) {
-		if (!empty($d['file'])) {
-			$d['srcset'] = $img_base_uri . $d['file'];
-			$d['webp_srcset'] = null;
+	// SP
+	if (!empty($args['artDirectives'])) {
+		foreach ($args['artDirectives'] as &$d) {
+			if (!empty($d['file'])) {
+				$d['srcset'] = $img_base_uri . $d['file'];
+				$d['webp_srcset'] = null;
+			}
 		}
 	}
 
